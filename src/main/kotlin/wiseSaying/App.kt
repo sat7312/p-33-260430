@@ -12,6 +12,8 @@ class App {
             print("명령) ")
 
             val input = readln()
+            val rq = Rq(input)
+
             when (input) {
                 "종료" -> {
                     println("프로그램을 종료합니다.")
@@ -38,6 +40,16 @@ class App {
                     wiseSayings.reversed().forEach {
                         println("${it.id} / ${it.author} / ${it.content}\n")
                     }
+                }
+
+                "삭제" -> {
+                    val id = rq.getParamAsInt("id", 0)
+
+                    wiseSayings.removeIf {
+                        it.id == id
+                    }
+
+                    println("${id}번 명언이 삭제되었습니다.")
                 }
             }
         }
