@@ -9,8 +9,8 @@ class WiseSayingRepository {
 
         return wiseSaying
             .takeIf { it.isNew() }
-            .apply { wiseSaying.id = ++lastId }
-            .also { wiseSayings.add(wiseSaying) }
+            ?.apply { this.id = ++lastId }
+            ?.also { wiseSayings.add(it) }
             ?: wiseSaying
     }
 
