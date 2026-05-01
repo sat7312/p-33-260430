@@ -1,70 +1,96 @@
 package com.back.domain.wiseSaying.controller
 
-import com.back.domain.wiseSaying.service.WiseSayingService
-import com.back.global.Rq
+import com.back.global.SingletonScope
+import org.assertj.core.api.Assertions.assertThat
+import org.junit.jupiter.api.BeforeEach
+import org.junit.jupiter.api.DisplayName
+import wiseSaying.TestRunner
+import kotlin.test.Test
+import kotlin.test.assertContains
 
-class WiseSayingControllerTest(
-    private val wiseSayingService: WiseSayingService = WiseSayingService()
-) {
+class WiseSayingControllerTest {
 
-    fun write() {
-        print("명언: ")
-        val content = readln().trim()
-
-        print("작가: ")
-        val author = readln().trim()
-        val wiseSaying = wiseSayingService.write(content, author)
-        println("${wiseSaying.id}번 명언이 등록되었습니다.")
+    @BeforeEach
+    fun clear() {
+        SingletonScope.wiseSayingRepository.clear()
     }
 
-    fun list() {
-        println("번호 / 작가 / 명언")
-        println("----------------------")
-
-        wiseSayingService.findAll().reversed().forEach {
-            println("${it.id} / ${it.author} / ${it.content}")
-        }
+    @Test
+    @DisplayName("명언 작성")
+    fun t1() {
+        val result = TestRunner.run(
+            """
+            등록
+            나의 죽음을 적들에게 알리지 말라.
+            충무공 이순신
+        """
+        )
+        println("result: $result")
+        assertContains(result, "명언: ")
+        assertContains(result, "작가: ")
+        assertContains(result, "1번 명언이 등록되었습니다.")
     }
 
-    fun delete(rq: Rq) {
-        val id = rq.getParamAsInt("id", 0)
+    @Test
+    fun `명언 목록`() {
+        val result = TestRunner.run(
+            """
+                등록
+                현재를 사랑하라.
+                작자미상
+                등록
+                과거에 집착하지 마라.
+                작자미상
+                목록
+                """
+        )
+        println("result: $result")
 
-        if (id == 0) {
-            println("id를 정확히 입력해주세요.")
-            return
-        }
-
-        wiseSayingService.findById(id)
-            ?.let {
-                wiseSayingService.delete(it)
-                println("${id}번 명언이 삭제되었습니다.")
-            }
-            ?: println("${id}번 명언은 존재하지 않습니다.")
+        assertThat(result)
+            .contains("번호 / 작가 / 명언")
+            .contains("----------------------")
+            .contains("2 / 작자미상 / 과거에 집착하지 마라.")
+            .contains("1 / 작자미상 / 현재를 사랑하라.");
     }
 
-    fun modify(rq: Rq) {
-        val id = rq.getParamAsInt("id", 0)
+    @Test
+    fun `삭제?id=1`() {
+        val out = TestRunner.run(
+            """
+                등록
+                현재를 사랑하라.
+                작자미상
+                등록
+                과거에 집착하지 마라.
+                작자미상
+                삭제?id=1
+                목록
+                
+                """.trimIndent()
+        )
 
-        if (id == 0) {
-            println("id를 정확히 입력해주세요.")
-            return
-        }
+        assertThat(out)
+            .contains("1번 명언이 삭제되었습니다.")
+            .contains("2 / 작자미상 / 과거에 집착하지 마라.")
+            .doesNotContain("1 / 작자미상 / 현재를 사랑하라.")
+    }
 
-        val wiseSaying = wiseSayingService.findById(id)
+    @Test
+    fun `수정id=1`() {
+        val out = TestRunner.run(
+            """
+                등록
+                현재를 사랑하라.
+                작자미상
+                수정?id=1
+                너 자신을 알라
+                소크라테스
+                목록
+                """.trimIndent()
+        )
 
-        if (wiseSaying == null) {
-            println("${id}번 명언은 존재하지 않습니다.")
-            return
-        }
-
-        println("명언(기존) : ${wiseSaying.content}): ")
-        print("명언 : ")
-        val newContent = readln().trim()
-        println("작가(기존: ${wiseSaying.author}): ")
-        print("작가 : ")
-        val newAuthor = readln().trim()
-
-        wiseSaying.modify(newContent, newAuthor)
-        println("${id}번 명언이 수정되었습니다.")
+        assertThat(out)
+            .doesNotContain("1 / 작자미상 / 현재를 사랑하라.")
+            .contains("1 / 소크라테스 / 너 자신을 알라")
     }
 }
