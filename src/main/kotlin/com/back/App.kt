@@ -20,7 +20,7 @@ class App(
             val input = readln().trim()
             val rq = Rq(input)
 
-            when (input) {
+            when (rq.action) {
                 "종료" -> {
                     systemController.exit()
                     break;
