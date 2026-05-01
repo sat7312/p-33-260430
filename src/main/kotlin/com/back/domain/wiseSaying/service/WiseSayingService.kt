@@ -18,8 +18,4 @@ class WiseSayingService(
         wiseSayingMemRepository.findById(id)
 
     fun delete(wiseSaying: WiseSaying) = wiseSayingMemRepository.delete(wiseSaying)
-
-    fun modify(wiseSaying: WiseSaying, content: String, author: String) {
-        wiseSaying.modify(content, author)
-    }
 }

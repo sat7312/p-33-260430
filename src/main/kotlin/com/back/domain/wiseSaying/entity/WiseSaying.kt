@@ -5,6 +5,11 @@ data class WiseSaying(
     var content: String,
     var author: String,
 ) {
+    fun modify(content: String, author: String) {
+        this.content = content
+        this.author = author
+    }
+
     fun isNew(): Boolean = id == 0
 
     val jsonStr: String
