@@ -7,8 +7,14 @@ data class WiseSaying(
 ) {
     fun isNew(): Boolean = id == 0
 
-    fun modify(content: String, author: String) {
-        this.content = content
-        this.author = author
-    }
+    val jsonStr: String
+        get() {
+            return """
+                {
+                    "id": $id,
+                    "content": "$content",
+                    "author": "$author"
+                }
+            """.trimIndent()
+        }
 }
